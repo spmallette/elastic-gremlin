@@ -1,11 +1,13 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 
 import java.util.*;
 
-public abstract class ElasticElement implements Element, Element.Iterators {
+public abstract class ElasticElement implements Element {
     protected HashMap<String, Property> properties = new HashMap();
     protected final Object id;
     protected final String label;

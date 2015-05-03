@@ -6,18 +6,26 @@ import com.tinkerpop.gremlin.elastic.process.graph.traversal.steps.flatmap.*;
 import com.tinkerpop.gremlin.elastic.process.graph.traversal.steps.traversalHolder.ElasticRepeatStep;
 import com.tinkerpop.gremlin.elastic.process.graph.traversal.steps.traversalHolder.ElasticUnionStep;
 import com.tinkerpop.gremlin.elastic.structure.ElasticGraph;
-import com.tinkerpop.gremlin.process.*;
-import com.tinkerpop.gremlin.process.graph.marker.HasContainerHolder;
-import com.tinkerpop.gremlin.process.graph.step.branch.RepeatStep;
-import com.tinkerpop.gremlin.process.graph.step.branch.UnionStep;
-import com.tinkerpop.gremlin.process.graph.step.filter.RangeStep;
-import com.tinkerpop.gremlin.process.graph.step.map.*;
-import com.tinkerpop.gremlin.process.graph.step.sideEffect.GraphStep;
-import com.tinkerpop.gremlin.process.graph.step.sideEffect.IdentityStep;
-import com.tinkerpop.gremlin.process.graph.strategy.AbstractTraversalStrategy;
-import com.tinkerpop.gremlin.process.graph.util.HasContainer;
-import com.tinkerpop.gremlin.process.util.*;
-import com.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.process.traversal.Step;
+import org.apache.tinkerpop.gremlin.process.traversal.Traversal;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalEngine;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
+import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
+import org.apache.tinkerpop.gremlin.process.traversal.step.branch.LocalStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.branch.RepeatStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.branch.UnionStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.map.EdgeVertexStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.map.VertexStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.GraphStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.IdentityStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.util.EmptyStep;
+import org.apache.tinkerpop.gremlin.process.traversal.step.util.HasContainer;
+import org.apache.tinkerpop.gremlin.process.traversal.strategy.AbstractTraversalStrategy;
+import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalHelper;
+import org.apache.tinkerpop.gremlin.structure.Compare;
+import org.apache.tinkerpop.gremlin.structure.Contains;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.elasticsearch.common.geo.builders.ShapeBuilder;
 import org.elasticsearch.common.xcontent.XContentParser;
 import org.elasticsearch.common.xcontent.json.JsonXContent;
@@ -33,16 +41,16 @@ public class ElasticGraphStepStrategy extends AbstractTraversalStrategy {
     }
     private static ThreadLocal<ElasticGraph> graph = new ThreadLocal<>();
 
-    @Override
-    public void apply(final Traversal.Admin<?, ?> traversal, final TraversalEngine engine) {
-        if (engine.equals(TraversalEngine.COMPUTER)) return;
 
-        Step<?, ?> startStep = TraversalHelper.getStart(traversal);
+    @Override
+    public void apply(Traversal.Admin<?, ?> traversal) {
+        if (traversal.getEngine().isComputer()) return;
+
+        Step<?, ?> startStep = traversal.getStartStep();
         if(startStep instanceof GraphStep || graph != null) {
-            if(startStep instanceof GraphStep ) graph.set((ElasticGraph) ((GraphStep) startStep).getGraph(ElasticGraph.class));
+            if(startStep instanceof GraphStep ) graph.set((ElasticGraph)traversal.getGraph().get());
             processStep(startStep, traversal, graph.get().elasticService);
         }
-
     }
 
     private void processStep(Step<?, ?> currentStep, Traversal.Admin<?, ?> traversal, ElasticService elasticService) {
@@ -101,7 +109,7 @@ public class ElasticGraphStepStrategy extends AbstractTraversalStrategy {
             ElasticRepeatStep repeatStep = new ElasticRepeatStep(currentStep.getTraversal(),originalRepeatStep);
             TraversalHelper.replaceStep(currentStep, (Step) repeatStep, traversal);
         }
-        else if (currentStep instanceof  LocalStep){
+        else if (currentStep instanceof LocalStep){
             //local step is working on each vertex -> we don't want our strategy to apply on this step
             LocalStep localStep = (LocalStep) currentStep;
             ((Traversal) localStep.getTraversals().get(0)).asAdmin().setStrategies(TraversalStrategies.GlobalCache.getStrategies(Graph.class));
@@ -174,4 +182,6 @@ public class ElasticGraphStepStrategy extends AbstractTraversalStrategy {
     private boolean isLimitStep(RangeStep rangeStep) {
         return rangeStep.getLowRange() == 0;
     }
+
+
 }

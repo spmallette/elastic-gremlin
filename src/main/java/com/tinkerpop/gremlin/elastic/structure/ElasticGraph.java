@@ -2,12 +2,16 @@ package com.tinkerpop.gremlin.elastic.structure;
 
 import com.tinkerpop.gremlin.elastic.elasticservice.ElasticService;
 import com.tinkerpop.gremlin.elastic.process.graph.traversal.strategy.ElasticGraphStepStrategy;
-import com.tinkerpop.gremlin.process.TraversalStrategies;
-import com.tinkerpop.gremlin.process.computer.GraphComputer;
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.*;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.tinkerpop.gremlin.process.computer.GraphComputer;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Transaction;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.elasticsearch.index.engine.DocumentAlreadyExistsException;
 
 import java.io.IOException;
@@ -16,7 +20,7 @@ import java.util.Iterator;
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_STANDARD)
 @Graph.OptIn(Graph.OptIn.SUITE_STRUCTURE_PERFORMANCE)
 @Graph.OptIn(Graph.OptIn.SUITE_PROCESS_STANDARD)
-public class ElasticGraph implements Graph, Graph.Iterators {
+public class ElasticGraph implements Graph {
     static {
         try {
             TraversalStrategies.GlobalCache.registerStrategies(ElasticGraph.class, TraversalStrategies.GlobalCache.getStrategies(Graph.class).clone().addStrategies(ElasticGraphStepStrategy.instance()));
@@ -45,11 +49,6 @@ public class ElasticGraph implements Graph, Graph.Iterators {
     }
 
     @Override
-    public Iterators iterators() {
-        return this;
-    }
-
-    @Override
     public String toString() {
         return StringFactory.graphString(this, elasticService.toString());
     }
@@ -75,25 +74,30 @@ public class ElasticGraph implements Graph, Graph.Iterators {
     }
 
     @Override
-    public GraphComputer compute(final Class... graphComputerClass) {
+    public Vertex addVertex(final Object... keyValues) {
+        return addVertex(false, keyValues);
+    }
+
+    @Override
+    public <C extends GraphComputer> C compute(Class<C> aClass) throws IllegalArgumentException {
         throw Exceptions.graphComputerNotSupported();
     }
 
     @Override
-    public Iterator<Vertex> vertexIterator(final Object... vertexIds) {
+    public GraphComputer compute() throws IllegalArgumentException {
+        throw Exceptions.graphComputerNotSupported();
+    }
+
+    @Override
+    public Iterator<Vertex> vertices(Object... vertexIds) {
         if (vertexIds == null || vertexIds.length == 0) return elasticService.searchVertices(null, null, null);
         return elasticService.getVertices(null,null,vertexIds);
     }
 
     @Override
-    public Iterator<Edge> edgeIterator(final Object... edgeIds) {
+    public Iterator<Edge> edges(Object... edgeIds) {
         if (edgeIds == null || edgeIds.length == 0) return elasticService.searchEdges(null, null, null);
         return elasticService.getEdges(null, null, edgeIds);
-    }
-
-    @Override
-    public Vertex addVertex(final Object... keyValues) {
-        return addVertex(false, keyValues);
     }
 
     public Vertex addVertex(Boolean upsert, final Object... keyValues) {

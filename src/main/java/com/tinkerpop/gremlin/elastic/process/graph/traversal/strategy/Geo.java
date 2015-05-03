@@ -1,6 +1,6 @@
 package com.tinkerpop.gremlin.elastic.process.graph.traversal.strategy;
 
-import com.spatial4j.core.shape.Shape;
+import  com.spatial4j.core.shape.Shape;
 import com.spatial4j.core.shape.SpatialRelation;
 import org.elasticsearch.common.Preconditions;
 import org.elasticsearch.common.geo.ShapeRelation;

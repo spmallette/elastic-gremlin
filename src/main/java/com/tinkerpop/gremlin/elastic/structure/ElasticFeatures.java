@@ -1,11 +1,11 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
-import com.tinkerpop.gremlin.structure.Graph;
-import com.tinkerpop.gremlin.structure.util.StringFactory;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 public class ElasticFeatures implements Graph.Features {
     @Override
-    public GraphFeatures graph() {
+    public Graph.Features.GraphFeatures graph() {
         return new GraphFeatures() {
             @Override
             public VariableFeatures variables() {

@@ -1,7 +1,10 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.*;
+
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 public class ElasticProperty<V> implements Property<V> {
     protected final ElasticElement element;

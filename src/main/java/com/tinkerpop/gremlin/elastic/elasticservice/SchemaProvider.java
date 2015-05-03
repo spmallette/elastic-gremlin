@@ -1,7 +1,8 @@
 package com.tinkerpop.gremlin.elastic.elasticservice;
 
-import com.tinkerpop.gremlin.structure.*;
 import org.apache.commons.configuration.Configuration;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.index.query.FilterBuilder;
 
@@ -16,7 +17,7 @@ public interface SchemaProvider {
 
     default Result getIndex(Element element){
         ArrayList keyValues = new ArrayList();
-        element.iterators().propertyIterator().forEachRemaining(property->{
+        element.properties().forEachRemaining(property->{
             keyValues.add(property.key());
             keyValues.add(property.value());
         });

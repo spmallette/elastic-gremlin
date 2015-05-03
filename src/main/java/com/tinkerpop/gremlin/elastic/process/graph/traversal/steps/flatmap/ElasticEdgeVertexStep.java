@@ -5,6 +5,8 @@ import com.tinkerpop.gremlin.elastic.structure.ElasticEdge;
 import com.tinkerpop.gremlin.process.graph.step.map.EdgeVertexStep;
 import com.tinkerpop.gremlin.process.util.TraversalHelper;
 import com.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 
 import java.util.*;

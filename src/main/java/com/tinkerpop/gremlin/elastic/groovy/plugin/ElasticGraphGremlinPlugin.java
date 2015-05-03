@@ -1,7 +1,10 @@
 package com.tinkerpop.gremlin.elastic.groovy.plugin;
 
 import com.tinkerpop.gremlin.elastic.structure.ElasticGraph;
-import com.tinkerpop.gremlin.groovy.plugin.*;
+import org.apache.tinkerpop.gremlin.groovy.plugin.AbstractGremlinPlugin;
+import org.apache.tinkerpop.gremlin.groovy.plugin.IllegalEnvironmentException;
+import org.apache.tinkerpop.gremlin.groovy.plugin.PluginAcceptor;
+import org.apache.tinkerpop.gremlin.groovy.plugin.PluginInitializationException;
 
 import java.util.*;
 

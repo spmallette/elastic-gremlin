@@ -1,13 +1,14 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
 import com.tinkerpop.gremlin.elastic.elasticservice.*;
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.*;
+import org.apache.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 import org.elasticsearch.index.query.*;
 
 import java.util.*;
 
-public class ElasticVertex extends ElasticElement implements Vertex, Vertex.Iterators {
+public class ElasticVertex extends ElasticElement implements Vertex {
     private LazyGetter lazyGetter;
     private ElasticService elasticService;
 
@@ -21,6 +22,26 @@ public class ElasticVertex extends ElasticElement implements Vertex, Vertex.Iter
     }
 
     @Override
+    public String toString() {
+        return StringFactory.vertexString(this);
+    }
+
+    @Override
+    public Edge addEdge(final String label, final Vertex vertex, final Object... keyValues) {
+        if (null == vertex) throw Graph.Exceptions.argumentCanNotBeNull("vertex");
+        checkRemoved();
+        return graph.addEdge(label, this.id(), this.label(), vertex.id(), vertex.label(), keyValues);
+    }
+
+    @Override
+    public void remove() {
+        checkRemoved();
+        elasticService.deleteElement(this);
+        elasticService.deleteElements((Iterator) edges(Direction.BOTH));
+        this.removed = true;
+    }
+
+    @Override
     public Property createProperty(String key, Object value) {
         return new ElasticVertexProperty(this, key, value);
     }
@@ -30,7 +51,6 @@ public class ElasticVertex extends ElasticElement implements Vertex, Vertex.Iter
         checkRemoved();
         return this.property(key, value);
     }
-
     @Override
     public <V> VertexProperty<V> property(String key, V value) {
         checkRemoved();
@@ -50,39 +70,17 @@ public class ElasticVertex extends ElasticElement implements Vertex, Vertex.Iter
     }
 
     @Override
-    public Edge addEdge(final String label, final Vertex vertex, final Object... keyValues) {
-        if (null == vertex) throw Graph.Exceptions.argumentCanNotBeNull("vertex");
-        checkRemoved();
-        return graph.addEdge(label,this.id(),this.label(),vertex.id(),vertex.label(),keyValues);
+    public <V> VertexProperty<V> property(VertexProperty.Cardinality cardinality, String s, V v, Object... objects) {
+        return null;
     }
-
     @Override
-    public void remove() {
-        checkRemoved();
-        elasticService.deleteElement(this);
-        elasticService.deleteElements((Iterator) edgeIterator(Direction.BOTH));
-        this.removed = true;
-    }
-
-    @Override
-    public String toString() {
-        return StringFactory.vertexString(this);
-    }
-
-    @Override
-    public Vertex.Iterators iterators() {
-        return this;
-    }
-
-    @Override
-    public <V> Iterator<VertexProperty<V>> propertyIterator(final String... propertyKeys) {
+    public <V> Iterator<VertexProperty<V>> properties(String... propertyKeys) {
         checkRemoved();
         if(lazyGetter != null) lazyGetter.execute();
         return innerPropertyIterator(propertyKeys);
     }
-
     @Override
-    public Iterator<Edge> edgeIterator(final Direction direction, final String... edgeLabels) {
+    public Iterator<Edge> edges(Direction direction, String... edgeLabels) {
         BoolFilterBuilder filter = FilterBuilders.boolFilter();
         if(direction == Direction.IN) filter.must(getFilter(ElasticEdge.InId));
         else if(direction == Direction.OUT) filter.must(getFilter(ElasticEdge.OutId));
@@ -91,17 +89,17 @@ public class ElasticVertex extends ElasticElement implements Vertex, Vertex.Iter
         return elasticService.searchEdges(filter, null, edgeLabels);
     }
 
-    private FilterBuilder getFilter(String key) {
-        return FilterBuilders.termFilter(key, this.id());
-    }
-
     @Override
-    public Iterator<Vertex> vertexIterator(final Direction direction, final String... edgeLabels) {
+    public Iterator<Vertex> vertices(Direction direction, String... edgeLabels) {
         checkRemoved();
-        Iterator<Edge> edgeIterator = edgeIterator(direction, edgeLabels);
+        Iterator<Edge> edgeIterator = edges(direction, edgeLabels);
         ArrayList<Object> ids = new ArrayList<>();
         edgeIterator.forEachRemaining((edge) -> ((ElasticEdge) edge).getVertexId(direction.opposite()).forEach((id) -> ids.add(id)));
-        return elasticService.getVertices(null,null,ids.toArray());
+        return elasticService.getVertices(null, null, ids.toArray());
+    }
+
+    private FilterBuilder getFilter(String key) {
+        return FilterBuilders.termFilter(key, this.id());
     }
 
     @Override

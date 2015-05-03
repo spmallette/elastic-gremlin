@@ -1,12 +1,13 @@
 package com.tinkerpop.gremlin.elastic.process.graph.traversal.steps;
 
 import com.tinkerpop.gremlin.elastic.elasticservice.ElasticService;
-import com.tinkerpop.gremlin.elastic.structure.ElasticGraph;
-import com.tinkerpop.gremlin.process.TraverserGenerator;
-import com.tinkerpop.gremlin.process.graph.step.sideEffect.GraphStep;
-import com.tinkerpop.gremlin.process.traverser.B_O_P_PA_S_SE_SL_TraverserGenerator;
-import com.tinkerpop.gremlin.process.util.TraversalMetrics;
-import com.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.process.traversal.TraverserGenerator;
+import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.GraphStep;
+import org.apache.tinkerpop.gremlin.process.traversal.traverser.B_O_P_PA_S_SE_SL_TraverserGenerator;
+import org.apache.tinkerpop.gremlin.process.traversal.util.TraversalMetrics;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 
 import java.util.*;
@@ -19,7 +20,7 @@ public class ElasticGraphStep<E extends Element> extends GraphStep<E> {
     private Object[] onlyAllowedIds;
     private Integer resultLimit;
     public ElasticGraphStep(GraphStep originalStep, BoolFilterBuilder boolFilter, String[] typeLabels,Object[] onlyAllowedIds, ElasticService elasticService,Integer resultLimit) {
-        super(originalStep.getTraversal(), originalStep.getGraph(ElasticGraph.class),originalStep.getReturnClass(),originalStep.getIds());
+        super(originalStep.getTraversal(), originalStep.getReturnClass(), originalStep.getIds());
         if (originalStep.getLabel().isPresent()) this.setLabel(originalStep.getLabel().get().toString());
         this.boolFilter = boolFilter;
         this.typeLabels = typeLabels;

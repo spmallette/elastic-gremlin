@@ -5,11 +5,14 @@ import com.tinkerpop.gremlin.process.*;
 import com.tinkerpop.gremlin.process.graph.marker.Reversible;
 import com.tinkerpop.gremlin.process.util.*;
 import com.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.process.traversal.step.util.AbstractStep;
+import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.elasticsearch.index.query.BoolFilterBuilder;
 
 import java.util.*;
 
-public abstract class ElasticFlatMapStep<S extends  Element, E extends Element > extends AbstractStep<S,E> implements Reversible {
+public abstract class ElasticFlatMapStep<S extends Element, E extends Element > extends AbstractStep<S,E> implements Reversible {
     protected final BoolFilterBuilder boolFilter;
     protected final Direction direction;
     protected final ElasticService elasticService;

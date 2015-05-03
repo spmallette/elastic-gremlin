@@ -1,12 +1,12 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
 import com.tinkerpop.gremlin.elastic.elasticservice.ElasticService;
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.*;
+import org.apache.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
 
 import java.util.*;
 
-public class ElasticEdge extends ElasticElement implements Edge, Edge.Iterators {
+public class ElasticEdge extends ElasticElement implements Edge {
 
     public static String OutId = "outId";
     public static String OutLabel = "outLabel";
@@ -55,19 +55,20 @@ public class ElasticEdge extends ElasticElement implements Edge, Edge.Iterators 
     }
 
     @Override
+    public <V> Iterator<Property<V>> properties(String... propertyKeys) {
+        checkRemoved();
+        return innerPropertyIterator(propertyKeys);
+    }
+
+    @Override
     public String toString()
     {
         return "e[" + this.id() +"]["+this.outId+"-"+this.label +"->"+ this.inId+"]";
     }
 
-    @Override
-    public Edge.Iterators iterators() {
-        checkRemoved();
-        return this;
-    }
 
     @Override
-    public Iterator<Vertex> vertexIterator(final Direction direction) {
+    public Iterator<Vertex> vertices(final Direction direction) {
         checkRemoved();
         ArrayList vertices = new ArrayList();
         //return elasticService.getVertices(null,null,getVertexId(direction).toArray());
@@ -87,12 +88,6 @@ public class ElasticEdge extends ElasticElement implements Edge, Edge.Iterators 
             default:
                 return Arrays.asList(outId, inId);
         }
-    }
-
-    @Override
-    public <V> Iterator<Property<V>> propertyIterator(final String... propertyKeys) {
-        checkRemoved();
-        return innerPropertyIterator(propertyKeys);
     }
 
     @Override

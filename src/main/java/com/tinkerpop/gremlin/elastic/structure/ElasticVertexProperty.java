@@ -1,11 +1,16 @@
 package com.tinkerpop.gremlin.elastic.structure;
 
-import com.tinkerpop.gremlin.structure.*;
-import com.tinkerpop.gremlin.structure.util.*;
+
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+import org.apache.tinkerpop.gremlin.structure.util.ElementHelper;
+import org.apache.tinkerpop.gremlin.structure.util.StringFactory;
 
 import java.util.Iterator;
 
-public class ElasticVertexProperty<V> implements VertexProperty<V>, VertexProperty.Iterators {
+public class ElasticVertexProperty<V> implements VertexProperty<V> {
 
     private final ElasticVertex vertex;
     private final String key;
@@ -63,18 +68,12 @@ public class ElasticVertexProperty<V> implements VertexProperty<V>, VertexProper
     }
 
     @Override
-    public void remove() {
-        vertex.removeProperty(this);
-    }
-
-    //////////////////////////////////////////////
-
-    public VertexProperty.Iterators iterators() {
-        return this;
+    public <U> Iterator<Property<U>> properties(String... strings) {
+        throw VertexProperty.Exceptions.multiPropertiesNotSupported();
     }
 
     @Override
-    public <U> Iterator<Property<U>> propertyIterator(final String... propertyKeys) {
-        throw VertexProperty.Exceptions.multiPropertiesNotSupported();
+    public void remove() {
+        vertex.removeProperty(this);
     }
 }

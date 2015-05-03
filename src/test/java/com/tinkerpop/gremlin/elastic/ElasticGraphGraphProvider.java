@@ -57,7 +57,7 @@ public class ElasticGraphGraphProvider extends AbstractGraphProvider {
         return new HashMap<String, Object>() {{
             put(Graph.GRAPH, ElasticGraph.class.getName());
             put("elasticsearch.cluster.name", CLUSTER_NAME);
-            put("elasticsearch.index.name",graphName);
+            put("elasticsearch.index.name",graphName.toLowerCase());
             put("elasticsearch.refresh", true);
             put("elasticsearch.client", ElasticService.ClientType.TRANSPORT_CLIENT.toString());
         }};

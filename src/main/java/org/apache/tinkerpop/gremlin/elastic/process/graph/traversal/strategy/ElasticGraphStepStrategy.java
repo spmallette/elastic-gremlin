@@ -3,9 +3,11 @@ package org.apache.tinkerpop.gremlin.elastic.process.graph.traversal.strategy;
 import org.apache.tinkerpop.gremlin.elastic.elasticservice.ElasticService;
 import org.apache.tinkerpop.gremlin.elastic.process.graph.traversal.steps.ElasticGraphStep;
 import org.apache.tinkerpop.gremlin.elastic.process.graph.traversal.steps.flatmap.*;
+import org.apache.tinkerpop.gremlin.elastic.process.graph.traversal.steps.traversalHolder.ElasticRepeatStep;
 import org.apache.tinkerpop.gremlin.elastic.structure.ElasticGraph;
 import org.apache.tinkerpop.gremlin.process.traversal.*;
 import org.apache.tinkerpop.gremlin.process.traversal.step.HasContainerHolder;
+import org.apache.tinkerpop.gremlin.process.traversal.step.branch.RepeatStep;
 import org.apache.tinkerpop.gremlin.process.traversal.step.map.*;
 import org.apache.tinkerpop.gremlin.process.traversal.step.sideEffect.*;
 import org.apache.tinkerpop.gremlin.process.traversal.step.util.*;
@@ -79,11 +81,13 @@ public class ElasticGraphStepStrategy extends AbstractTraversalStrategy {
             ElasticEdgeVertexStep newSearchStep = new ElasticEdgeVertexStep((EdgeVertexStep)currentStep, hasContainers, elasticService,resultsLimit);
             TraversalHelper.replaceStep(currentStep, (Step) newSearchStep, traversal);
         }
-        /*else if (currentStep instanceof RepeatStep){
+
+        else if (currentStep instanceof RepeatStep){
             RepeatStep originalRepeatStep = (RepeatStep) currentStep;
             ElasticRepeatStep repeatStep = new ElasticRepeatStep(currentStep.getTraversal(),originalRepeatStep);
             TraversalHelper.replaceStep(currentStep, (Step) repeatStep, traversal);
         }
+        /*
         else if (currentStep instanceof LocalStep){
             //local step is working on each vertex -> we don't want our strategy to apply on this step
             LocalStep localStep = (LocalStep) currentStep;
